@@ -1,3 +1,4 @@
 .git/
 .ccls-cache/
+obj/
 tags
