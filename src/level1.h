@@ -8,7 +8,7 @@
 
 void level1_init();
 
-void level1_update(int x, int y);
+bool level1_update(float x, float y);
 
 void level1_draw();
 

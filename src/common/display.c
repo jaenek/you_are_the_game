@@ -27,6 +27,10 @@ ALLEGRO_DISPLAY *display_init() {
 	return display;
 }
 
+void display_transform_coords(float *x, float *y) {
+	al_transform_coordinates(&transform, x, y);
+}
+
 void display_deinit() {
 	al_destroy_bitmap(buffer);
 	al_destroy_display(display);

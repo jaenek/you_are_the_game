@@ -4,16 +4,18 @@
 typedef struct POINT {
 	int x, y;
 	bool last;
+	int button_index;
+	bool correct;
 } POINT;
 POINT points[POINTS];
+int correctpoints = 0;
 
 #define BTNS 5
 typedef struct BTN {
 	int x1, y1, x2, y2;
-	int dest_point_index;
 } BTN;
 BTN btns[BTNS];
-int selected = -1;
+int selected_btn = -1;
 
 static void goright(int index) {
 	points[index-1].last = false;
@@ -39,8 +41,6 @@ void level1_init() {
 	points[20] = (POINT){ .x = 30, .y = 3*BUFFER_H/6 };
 	points[30] = (POINT){ .x = 30, .y = 4*BUFFER_H/6 };
 	points[40] = (POINT){ .x = 30, .y = 5*BUFFER_H/6 };
-
-	srand(time(NULL));
 
 	goright(1);
 	goright(11);
@@ -73,6 +73,9 @@ void level1_init() {
 		for (int j = 2; j < 10; j++) {
 			if (points[i+j].x > 300)
 				points[i+j].x = 300;
+			if (points[i+j].last) {
+				points[i+j].button_index = i/10;
+			}
 		}
 	}
 
@@ -83,21 +86,40 @@ void level1_init() {
 	btns[4] = (BTN){ .x1 = 10, .y1 = 5*BUFFER_H/6-10, .x2 = 30, .y2 = 5*BUFFER_H/6+10 };
 }
 
-void level1_update(int x, int y) {
+bool level1_update(float x, float y) {
 	for (int i = 0; i < BTNS; i++) {
-		if (collide(btns[i].x1, btns[i].y1, btns[i].x2, btns[i].y2, 0, 0, x, y)) {
-			puts("updating");
-			selected = i;
+		if (collide(x, y, x, y, btns[i].x1, btns[i].y1, btns[i].x2, btns[i].y2)) {
+			selected_btn = i;
 		}
 	}
+
+	for (int i = 0; i < POINTS; i+=10) {
+		for (int j = 2; j < 10; j++) {
+			if (points[i+j].last) {
+				if (collide(x, y, x, y, points[i+j].x-5, points[i+j].y-5, points[i+j].x+5, points[i+j].y+5)) {
+					if (points[i+j].button_index == selected_btn) {
+						correctpoints++;
+						points[i+j].correct = true;
+						selected_btn = -1;
+					}
+				}
+			}
+		}
+	}
+
+	if (correctpoints == 5)
+		return true;
+
+	return false;
 }
+
 
 void level1_draw() {
 	for (int i = 0; i < BTNS; i++) {
 		al_draw_filled_rectangle(
 			btns[i].x1, btns[i].y1,
 			btns[i].x2, btns[i].y2,
-			(i == selected) ? al_map_rgb_f(0.46, 0.8, 0.4) : al_map_rgb_f(0.86, 0.8, 0.8)
+			(i == selected_btn) ? al_map_rgb_f(0.46, 0.8, 0.4) : al_map_rgb_f(0.86, 0.8, 0.8)
 		);
 	}
 
@@ -114,7 +136,7 @@ void level1_draw() {
 				al_draw_filled_circle(
 					points[i+j+1].x, points[i+j+1].y,
 					5,
-					al_map_rgb_f(1,0.5,0.3)
+					points[i+j+1].correct ? al_map_rgb_f(0.5,1,0.3) : al_map_rgb_f(1,0.5,0.3)
 				);
 			}
 		}

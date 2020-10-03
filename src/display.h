@@ -8,6 +8,8 @@
 
 ALLEGRO_DISPLAY *display_init();
 
+void display_transform_coords(float *x, float *y);
+
 void display_deinit();
 
 void display_pre_draw();
