@@ -9,6 +9,8 @@
 
 void level1_init();
 
+bool level1_check_done();
+
 bool level1_update(MOUSE* mouse);
 
 void level1_draw();

@@ -1,6 +1,6 @@
 CC     := gcc
 CFLAGS := -Wall -g
-LIBS   := -lallegro -lallegro_image -lallegro_primitives
+LIBS   := -lallegro -lallegro_primitives -lallegro_image -lallegro_font
 
 TARGET := $(shell basename $(shell pwd))
 OBJ    := $(patsubst src/%.c,obj/%.o, $(wildcard src/*/*.c) src/main.c)

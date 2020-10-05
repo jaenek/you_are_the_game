@@ -17,6 +17,8 @@ typedef struct BTN {
 BTN btns[BTNS];
 int selected_btn = -1;
 
+bool done;
+
 static void goright(int index) {
 	points[index-1].last = false;
 	points[index] = (POINT){
@@ -39,6 +41,7 @@ void level1_init() {
 	memset(points, 0, sizeof(points));
 	memset(btns, 0, sizeof(btns));
 	correctpoints = 0;
+	done = false;
 
 	points[0]  = (POINT){ .x = 30, .y = 1*BUFFER_H/6 };
 	points[10] = (POINT){ .x = 30, .y = 2*BUFFER_H/6 };
@@ -90,6 +93,10 @@ void level1_init() {
 	btns[4] = (BTN){ .x1 = 10, .y1 = 5*BUFFER_H/6-10, .x2 = 30, .y2 = 5*BUFFER_H/6+10 };
 }
 
+bool level1_check_done() {
+	return done;
+}
+
 bool level1_update(MOUSE *mouse) {
 	if (mouse->buttons[1]) {
 		for (int i = 0; i < BTNS; i++) {
@@ -111,7 +118,8 @@ bool level1_update(MOUSE *mouse) {
 						if (points[i+j].button_index == selected_btn) {
 							correctpoints++;
 							points[i+j].correct = true;
-							selected_btn = -1;
+						} else {
+							return true;
 						}
 					}
 				}
@@ -119,7 +127,7 @@ bool level1_update(MOUSE *mouse) {
 		}
 
 		if (correctpoints == 5)
-			return true;
+			done = true;
 	}
 
 	return false;

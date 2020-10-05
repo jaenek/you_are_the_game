@@ -46,7 +46,7 @@ bool level3_check_done() {
 	return false;
 }
 
-void level3_update(MOUSE* mouse) {
+bool level3_update(MOUSE* mouse) {
 	frames++;
 	if (mouse->buttons[1]) {
 		int x = mouse->x, y = mouse->y;
@@ -55,8 +55,11 @@ void level3_update(MOUSE* mouse) {
 			pixels[pixel_index].y = y;
 			pixels[pixel_index].drawn = true;
 			pixel_index++;
+		} else {
+			return true;
 		}
 	}
+	return false;
 }
 
 void level3_draw() {
