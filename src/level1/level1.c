@@ -36,6 +36,10 @@ static void govertical(int index) {
 }
 
 void level1_init() {
+	memset(points, 0, sizeof(points));
+	memset(btns, 0, sizeof(btns));
+	correctpoints = 0;
+
 	points[0]  = (POINT){ .x = 30, .y = 1*BUFFER_H/6 };
 	points[10] = (POINT){ .x = 30, .y = 2*BUFFER_H/6 };
 	points[20] = (POINT){ .x = 30, .y = 3*BUFFER_H/6 };
@@ -86,29 +90,37 @@ void level1_init() {
 	btns[4] = (BTN){ .x1 = 10, .y1 = 5*BUFFER_H/6-10, .x2 = 30, .y2 = 5*BUFFER_H/6+10 };
 }
 
-bool level1_update(float x, float y) {
-	for (int i = 0; i < BTNS; i++) {
-		if (collide(x, y, x, y, btns[i].x1, btns[i].y1, btns[i].x2, btns[i].y2)) {
-			selected_btn = i;
+bool level1_update(MOUSE *mouse) {
+	if (mouse->buttons[1]) {
+		for (int i = 0; i < BTNS; i++) {
+			if (collide(
+					mouse->x, mouse->y, mouse->x, mouse->y,
+					btns[i].x1, btns[i].y1, btns[i].x2, btns[i].y2
+				)) {
+				selected_btn = i;
+			}
 		}
-	}
 
-	for (int i = 0; i < POINTS; i+=10) {
-		for (int j = 2; j < 10; j++) {
-			if (points[i+j].last) {
-				if (collide(x, y, x, y, points[i+j].x-5, points[i+j].y-5, points[i+j].x+5, points[i+j].y+5)) {
-					if (points[i+j].button_index == selected_btn) {
-						correctpoints++;
-						points[i+j].correct = true;
-						selected_btn = -1;
+		for (int i = 0; i < POINTS; i+=10) {
+			for (int j = 2; j < 10; j++) {
+				if (points[i+j].last) {
+					if (collide(
+							mouse->x, mouse->y, mouse->x, mouse->y,
+							points[i+j].x-5, points[i+j].y-5, points[i+j].x+5, points[i+j].y+5
+						)) {
+						if (points[i+j].button_index == selected_btn) {
+							correctpoints++;
+							points[i+j].correct = true;
+							selected_btn = -1;
+						}
 					}
 				}
 			}
 		}
-	}
 
-	if (correctpoints == 5)
-		return true;
+		if (correctpoints == 5)
+			return true;
+	}
 
 	return false;
 }

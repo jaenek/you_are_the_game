@@ -8,7 +8,7 @@
 
 ALLEGRO_DISPLAY *display_init();
 
-void display_transform_coords(float *x, float *y);
+ALLEGRO_BITMAP *display_get_buffer();
 
 void display_deinit();
 

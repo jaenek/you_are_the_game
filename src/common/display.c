@@ -1,9 +1,9 @@
 #include "../utils.h"
 #include "../display.h"
 
-static ALLEGRO_DISPLAY *display;
-static ALLEGRO_BITMAP *buffer;
-static ALLEGRO_TRANSFORM transform;
+ALLEGRO_DISPLAY *display;
+ALLEGRO_BITMAP *buffer;
+ALLEGRO_TRANSFORM transform;
 
 ALLEGRO_DISPLAY *display_init() {
 	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
@@ -25,6 +25,10 @@ ALLEGRO_DISPLAY *display_init() {
 	al_use_transform(&transform);
 
 	return display;
+}
+
+ALLEGRO_BITMAP *display_get_buffer() {
+	return buffer;
 }
 
 void display_transform_coords(float *x, float *y) {

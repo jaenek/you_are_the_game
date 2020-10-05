@@ -9,11 +9,17 @@
 
 unsigned char *keyboard_init();
 
-void keyboard_update();
+void keyboard_update(ALLEGRO_EVENT *event);
 
-void mouse_init(ALLEGRO_DISPLAY* display);
+typedef struct MOUSE {
+	float x, y;
+	float dx, dy;
+	bool buttons[3];
+} MOUSE;
 
-void mouse_update(float x, float y);
+MOUSE *mouse_init(ALLEGRO_DISPLAY *display);
+
+void mouse_update(ALLEGRO_DISPLAY * display, ALLEGRO_EVENT *event);
 
 void mouse_draw();
 

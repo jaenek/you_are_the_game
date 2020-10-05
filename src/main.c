@@ -1,18 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_image.h>
 
 #include "utils.h"
 #include "input.h"
 #include "display.h"
+#include "sprites.h"
 #include "level1.h"
+#include "level2.h"
+#include "level3.h"
 
 typedef enum LEVELS {
 	INIT_PROCESS_INPUT = 0,
 	PROCESS_INPUT,
+	INIT_UPDATE_PHYSICS,
 	UPDATE_PHYSICS,
+	INIT_DRAW,
+	DRAW
 } LEVELS;
-LEVELS LEVEL = INIT_PROCESS_INPUT;
+LEVELS LEVEL = INIT_DRAW;
 
 int main() {
 	srand(time(NULL));
@@ -29,7 +36,11 @@ int main() {
 
 	unsigned char *key = keyboard_init();
 
-	mouse_init(display);
+	MOUSE *mouse = mouse_init(display);
+
+	must_init(al_init_image_addon(), "image");
+
+	SPRITES *sprites = sprites_init();
 
 	al_register_event_source(queue, al_get_display_event_source(display));
 	al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -51,20 +62,40 @@ int main() {
 				if (key[ALLEGRO_KEY_ESCAPE])
 					done = true;
 
+				if (key[ALLEGRO_KEY_SPACE]) {
+					if (LEVEL == UPDATE_PHYSICS && level2_check_done())
+						LEVEL++;
+					else if (LEVEL == DRAW && level3_check_done())
+						LEVEL = INIT_PROCESS_INPUT;
+				}
+
+				if (LEVEL == PROCESS_INPUT)
+					if (level1_update(mouse))
+						LEVEL++;
+
+				if (LEVEL == UPDATE_PHYSICS)
+					level2_select_item(mouse);
+
+				if (LEVEL == DRAW)
+					level3_update(mouse);
+
 				redraw = true;
 				break;
 
 			case ALLEGRO_EVENT_MOUSE_AXES:
-				mouse_update(event.mouse.x, event.mouse.y);
-				redraw = true;
+				mouse_update(display, &event);
+
+				if (LEVEL == UPDATE_PHYSICS)
+					level2_update(mouse);
+
 				break;
 
 			case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-				if (LEVEL == PROCESS_INPUT && event.mouse.button == 1)
-					if (level1_update(event.mouse.x, event.mouse.y))
-						LEVEL++;
+				mouse->buttons[event.mouse.button] = true;
+				break;
 
-				redraw = true;
+			case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+				mouse->buttons[event.mouse.button] = false;
 				break;
 
 			case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -88,7 +119,18 @@ int main() {
 				case PROCESS_INPUT:
 					level1_draw();
 					break;
+				case INIT_UPDATE_PHYSICS:
+					level2_init();
+					LEVEL++;
 				case UPDATE_PHYSICS:
+					level2_draw();
+					break;
+				case INIT_DRAW:
+					level3_init(sprites);
+					LEVEL++;
+					break;
+				case DRAW:
+					level3_draw();
 					break;
 			}
 
